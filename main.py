@@ -9,8 +9,6 @@ from pyatv.const import Protocol
 import io
 from pyatv.interface import PushListener
 
-atv = None
-
 
 class SongTitleListener(PushListener):
     def playstatus_update(self, _, playstatus):
@@ -24,32 +22,32 @@ class SongTitleListener(PushListener):
 
 
 async def main():
-    global atv
-
     loop = asyncio.get_event_loop()
-    atvs = await scan(loop)
+    atvs = await scan(loop, hosts=["host.docker.internal"])
     conf = None
+    print(f"Found apple tvs: {atvs}")
     for i, atv in enumerate(atvs):
         print(atv.name)
         print(atv.device_info.model)
         if atv.device_info.model.name == "HomePod":
             conf = atvs[i]
+        print(atv)
 
-    atv = await connect(conf, loop)
+    # atv = await connect(conf, loop)
+
+    # listener = SongTitleListener()
+    # atv.push_updater.listener = listener
+    # # Start the push listener
+    # atv.push_updater.start()
+    # try:
+    #     print(atv)
+    #     # Keep the program running
+    #     while True:
+    #         pass
+    # except KeyboardInterrupt:
+    #     # Stop the push listener on keyboard interrupt
+    #     atv.push_updater.stop()
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-listener = SongTitleListener()
-
-atv.push_updater.listener = listener
-# Start the push listener
-atv.push_updater.start()
-try:
-    print(atv)
-    # Keep the program running
-    while True:
-        pass
-except KeyboardInterrupt:
-    # Stop the push listener on keyboard interrupt
-    atv.push_updater.stop()
+print("Running Program...")
+asyncio.run(main())
